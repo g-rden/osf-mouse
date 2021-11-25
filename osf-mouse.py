@@ -5,7 +5,6 @@ import argparse
 import traceback
 import gc
 
-
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("-i", "--ip", help="Set IP address for sending tracking data", default="127.0.0.1")
 parser.add_argument("-p", "--port", type=int, help="Set port for sending tracking data", default=11573)
@@ -203,24 +202,19 @@ try:
                 f.id += args.face_id_offset
                 if f.eye_blink is None:
                     f.eye_blink = [1, 1]
-                right_state = "" if f.eye_blink[0] > 0.30 else "xdotool click 1" #left click
-                left_state = "" if f.eye_blink[1] > 0.30 else ""
-                
+                right_state = "" if f.eye_blink[0] > 0.30 else "xdotool click 1"
+                left_state = "" if f.eye_blink[1] > 0.30 else "xdotool click 1"
+                if args.silent == 0:
+                    print(f"Confidence[{f.id}]: {f.conf:.4f} / 3D fitting error: {f.pnp_error:.4f} / Eyes: {left_state}, {right_state}")
                 if args.silent == 2:
-					              
-                    #relative. set scale manually depending on polling rate
+                    #set scale manually depending on polling rate
                     xeuler=str(int((f.euler[1]-18)*-5))
                     yeuler=str(int((abs(f.euler[0])-152)*7))
                     zeuler=(int(f.euler[2]+5)*1)
-                    
                     tilt_state = "xdotool click 1" if zeuler < 70 and zeuler_prev >= 70 else "xdotool click 3" if zeuler > 110 and zeuler_prev <= 110 else ""
-                    
                     lookcmd = "xdotool mousemove_relative -- "+xeuler+" "+yeuler
-                    print(zeuler)
-                    
                     os.system(lookcmd)
                     print(lookcmd)
-                    
                     if tilt_state != "":
                         os.system(tilt_state)
                         print(tilt_state)
@@ -229,8 +223,6 @@ try:
                     #if right_state != "":
                     #    os.system(right_state)
                     #    print(right_state)
-                    
-                    
                     
                 detected = True
                 if not f.success:
