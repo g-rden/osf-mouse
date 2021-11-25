@@ -3,10 +3,11 @@ Control your mouse with face tracking in Linux
 [osf-mouse.py](osf-mouse.py) is [facetracking.py](facetracking.py) from [OpenSeeFace](https://github.com/emilianavt/OpenSeeFace) with added functionality and removed Windows features. [osf-mouse.sh](osf-mouse.sh) is a script that might be helpful. The rest of this repo is identicle to OpenSeeFace and exists in case future updates to OpenSeeFace break the functionallity of osf-mouse.py. Until then you can use the official repo with osf-mouse.py.
 
 # Usage
-xdotool needed
-See osf-mouse.sh
+xdotool is required.
+See osf-mouse.sh for an exmple.
 `-s 2` enables the mouse control
-Recommendations:
+
+# Recommendations:
 Fixed framerate like `-F 30`
 Low model quality. `--model -1` if blink detection isn't needed
 
