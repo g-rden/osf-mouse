@@ -183,7 +183,9 @@ try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             tracker = Tracker(width, height, threshold=args.threshold, max_threads=args.max_threads, max_faces=args.faces, discard_after=args.discard_after, scan_every=args.scan_every, silent=False if args.silent == 0 else True, model_type=args.model, model_dir=args.model_dir, no_gaze=False if args.gaze_tracking != 0 and args.model != -1 else True, detection_threshold=args.detection_threshold, use_retinaface=args.scan_retinaface, max_feature_updates=args.max_feature_updates, static_model=True if args.no_3d_adapt == 1 else False, try_hard=args.try_hard == 1)
             sttm = time.time()
-            zeuler_prev = 90
+            zeuler_prev = 90.0
+            right_state_prev = 0.9
+            left_state_prev = 0.9
             if not args.video_out is None:
                 out = cv2.VideoWriter(args.video_out, cv2.VideoWriter_fourcc('F','F','V','1'), args.video_fps, (width * args.video_scale, height * args.video_scale))
 
@@ -202,8 +204,12 @@ try:
                 f.id += args.face_id_offset
                 if f.eye_blink is None:
                     f.eye_blink = [1, 1]
-                right_state = "" if f.eye_blink[0] > 0.30 else "xdotool click 1"
-                left_state = "" if f.eye_blink[1] > 0.30 else "xdotool click 1"
+                    
+                right_state = "xdotool click 1" if f.eye_blink[0] <= 0.30 and right_state_prev > 0.30 else ""
+                left_state = "xdotool click 1" if f.eye_blink[1] <= 0.30 and left_state_prev > 0.30 else ""
+                right_state_prev = f.eye_blink[0]
+                left_state_prev = f.eye_blink[0]
+                
                 if args.silent == 0:
                     print(f"Confidence[{f.id}]: {f.conf:.4f} / 3D fitting error: {f.pnp_error:.4f} / Eyes: {left_state}, {right_state}")
                 if args.silent == 2:
@@ -211,18 +217,27 @@ try:
                     xeuler=str(int((f.euler[1]-18)*-5))
                     yeuler=str(int((abs(f.euler[0])-152)*7))
                     zeuler=(int(f.euler[2]+5)*1)
-                    tilt_state = "xdotool click 1" if zeuler < 70 and zeuler_prev >= 70 else "xdotool click 3" if zeuler > 110 and zeuler_prev <= 110 else ""
+                    
+                    tilt_state = "xdotool click 1" if zeuler < 70.0 and zeuler_prev >= 70.0 else "xdotool click 3" if zeuler > 110.0 and zeuler_prev <= 110.0 else ""
+                    zeuler_prev = zeuler
+                    
                     lookcmd = "xdotool mousemove_relative -- "+xeuler+" "+yeuler
                     os.system(lookcmd)
                     print(lookcmd)
+                    
                     if tilt_state != "":
                         os.system(tilt_state)
                         print(tilt_state)
                         
-                    ##blink as mouse
+                    ##blink right as mouse click
                     #if right_state != "":
                     #    os.system(right_state)
                     #    print(right_state)
+                        
+                    ##blink left as mouse click
+                    #if left_state != "":
+                    #    os.system(left_state)
+                    #    print(left_state)
                     
                 detected = True
                 if not f.success:
