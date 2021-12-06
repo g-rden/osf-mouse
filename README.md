@@ -9,9 +9,9 @@ See osf-mouse.sh for an exmple.
 
 # Recommendations:
 Fixed framerate like `-F 30`
-Low model quality. `--model -1` if blink detection isn't needed
+Low model quality. `--model -1` if blink detection (which is commented out in osf-mouse.py) isn't needed
 
-See line 210 for parameter tuning
+See line 208 and further for parameter tuning
 
 # osf-mouse.sh
 osf-mouse.sh is a little script for taking the camera input and creating a new camera device, which is then used as input for facetracker.py. If Ctrl-C is pressed often enough ffmpeg should have also stopped. The new camera is needed because with the original camera the update rate is half of the framerate.
